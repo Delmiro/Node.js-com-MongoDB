@@ -6,6 +6,7 @@ router.post('/', async (req, res) => {
     const {name, salary, approved} = req.body
     if(!name){
         res.status(422).json({error: 'O nome é obrigatório!'})
+        return
     }
     const person = {
         name, 
@@ -33,10 +34,37 @@ router.get('/:id', async (req, res) => {
     const id = req.params.id
     try {
         const person = await Person.findOne({_id: id})
+        
+        if(!person){
+            res.status(404).json({message: 'Pessoa não encontrada.'})
+            return
+        }
+
         res.status(200).json({person})
     } catch (error) {
         res.status(500).json({ error: error})
     }
+})
+
+
+router.patch('/:id', async (req, res) => {
+    const id = req.params.id
+    
+    const {name, salary, approved} = req.body
+
+    const person  = {
+        name, 
+        salary,
+        approved,
+    }
+
+    try {
+        const updatePerson = await Person.updateOne({_id: id}, person)
+        res.status(200).json({person})
+    } catch (error) {
+        res.status(500).json({ error: error})
+    }
+
 })
 
 module.exports = router
